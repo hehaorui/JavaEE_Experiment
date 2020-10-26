@@ -1,9 +1,9 @@
-package filters;
+package cas.client.filter;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-
-import cas.client.Constants;
-import database.DB;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -16,64 +16,107 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import domains.User;
+import cas.client.Constants;
 
-@WebFilter(filterName="F3",urlPatterns="/*")
-public class LocalLoginFilter implements Filter {
-	public LocalLoginFilter() {
-		super();
+/**
+ * Servlet Filter implementation class SingleSignOnFilter
+ */
+@WebFilter(filterName="F2",urlPatterns="/*")
+public class SingleSignOnFilter implements Filter {
+	private String CAS_LOGIN_URL="http://localhost:8080/cas/login.do";
+	private String CAS_USER_URL="http://localhost:8080/cas/getUser.do";
+
+	/**
+	 * Default constructor.
+	 */
+	public SingleSignOnFilter() {
 		// TODO Auto-generated constructor stub
 	}
+
+	/**
+	 * @see Filter#destroy()
+	 */
 	public void destroy() {
 		// TODO Auto-generated method stub
 	}
 
-	public void init(FilterConfig fConfig) throws ServletException {
-		// TODO Auto-generated method stub
-	}
+	/**
+	 * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
+	 */
+	public void doFilter(ServletRequest request, ServletResponse response,
+			FilterChain chain) throws IOException, ServletException {
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		HttpSession session = httpRequest.getSession();
+		System.out.println("SingleSignOnFilter sessionID："+session.getId());
+		String CAS_ST = httpRequest.getParameter(Constants.CAS_ST);
+		if (CAS_ST != null) {
+			// CAS返回ST
+			System.out.println("cas_st不为空");
+			session.setAttribute(Constants.LOCAL_ST, CAS_ST);
+			String LOCAL_SERVICE = httpRequest
+					.getParameter(Constants.LOCAL_SERVICE);
+			if (LOCAL_SERVICE != null && !LOCAL_SERVICE.equals("")) {
+				if(LOCAL_SERVICE.endsWith("view.do")) {
+					httpResponse.sendRedirect(LOCAL_SERVICE);
+				}
+				else {
+					httpResponse.sendRedirect(LOCAL_SERVICE+"view.do");
+				}
+			}
+			else
+				httpResponse.sendRedirect(httpRequest.getContextPath());
+			return;
+		} else {
+			String LOCAL_ST = (String) session.getAttribute(Constants.LOCAL_ST);
+			if (LOCAL_ST == null) {
+				// 跳转到CAS登录
+				httpResponse.sendRedirect(CAS_LOGIN_URL + "?"
+						+ Constants.LOCAL_SERVICE + "="
+						+ httpRequest.getRequestURL());
+			} else {
+				System.out.println("从session获取值LOCAL_USER_ID");
+				String LOCAL_USER_ID = (String) session
+						.getAttribute(Constants.LOCAL_USER_ID);
+				if (LOCAL_USER_ID == null) {
+					// 获取LOCAL_USER_ID
+					System.out.println("LOCAL_USER_ID为空");
+					try {
+						URL url = new URL(CAS_USER_URL + "?" + Constants.CAS_ST
+								+ "=" + LOCAL_ST + "&host="
+								+ httpRequest.getServerName() + "&app="
+								+ httpRequest.getContextPath() + "&"
+								+ Constants.LOCAL_SERVICE + "="
+								+ httpRequest.getRequestURL() + "&sessionId="
+								+ session.getId());
+						BufferedReader reader = new BufferedReader(
+								new InputStreamReader(url.openStream()));
+						LOCAL_USER_ID = reader.readLine();
+						reader.close();
+						session.setAttribute(Constants.LOCAL_USER_ID,
+								LOCAL_USER_ID);
+					} catch (Exception e) {
+						e.printStackTrace();
+						// 跳转到CAS登录
+						httpResponse.sendRedirect(CAS_LOGIN_URL + "?"
+								+ Constants.LOCAL_SERVICE + "="
+								+ httpRequest.getRequestURL());
+					}
 
-	protected void loginFail(HttpServletRequest request,
-			HttpServletResponse response) {
-		try {
-			response.setContentType("text/html; charset=UTF-8");
-			response.getWriter().println("登录失败");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	protected boolean doLogin(HttpServletRequest request,
-			HttpServletResponse response) {
-		try {
-			HttpSession session = request.getSession();
-			String userId = (String) session
-					.getAttribute(Constants.LOCAL_USER_ID);
-			User user=DB.getUser(userId);
-			session.setAttribute("user", user);
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-
-	}
-	
-	final public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		HttpSession session=((HttpServletRequest)request).getSession();
-		Boolean CAS_LOGIN=(Boolean) session.getAttribute(Constants.LOCAL_LOGINED);
-		if(CAS_LOGIN!=null&&CAS_LOGIN)
-			chain.doFilter(request, response);
-		else
-		{
-			if(doLogin((HttpServletRequest)request,(HttpServletResponse)response))
-			{
-				session.setAttribute(Constants.LOCAL_LOGINED, true);
+				}
 				chain.doFilter(request, response);
-			}else{
-				loginFail((HttpServletRequest)request,(HttpServletResponse)response);
+
 			}
 		}
+
 	}
 
-
+	/**
+	 * @see Filter#init(FilterConfig)
+	 */
+	public void init(FilterConfig fConfig) throws ServletException {
+//		CAS_LOGIN_URL = fConfig.getInitParameter(Constants.CAS_LOGIN_URL);
+//		CAS_USER_URL = fConfig.getInitParameter(Constants.CAS_USER_URL);
+	}
 
 }
