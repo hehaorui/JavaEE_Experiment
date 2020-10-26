@@ -18,6 +18,7 @@ import javax.servlet.http.HttpSession;
 
 import domains.User;
 
+//跨应用登录的后一步，在F2后执行
 @WebFilter(filterName="F3",urlPatterns="/*")
 public class LocalLoginFilter implements Filter {
 	public LocalLoginFilter() {
