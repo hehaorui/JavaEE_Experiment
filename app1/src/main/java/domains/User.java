@@ -1,7 +1,7 @@
 package domains;
 
 
-public class User {
+public class User { //用户类
 	private String id;
 	private String name;
 	private String pwd;
