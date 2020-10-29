@@ -15,7 +15,7 @@ public class UserController extends HttpServlet  {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String uri=request.getRequestURI();
+		String uri=request.getRequestURI();//请求URI判断
 		if(uri.endsWith("/view.do"))
 		{
 			request.getRequestDispatcher("/WEB-INF/jsp/view.jsp").forward(request, response);;
