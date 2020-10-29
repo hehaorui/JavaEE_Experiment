@@ -19,7 +19,7 @@ public class SessionMap {
 //	{
 //		map.remove(id);
 //	}
-	public static void invalidate(String id)
+	public static void invalidate(String id)//实现session的销毁
 	{
 		HttpSession session=map.get(id);
 		session.invalidate();
