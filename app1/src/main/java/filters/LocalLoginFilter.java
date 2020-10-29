@@ -46,7 +46,7 @@ public class LocalLoginFilter extends AbstractLocalLoginFilter implements
 	public void init(FilterConfig fConfig) throws ServletException {
 		// TODO Auto-generated method stub
 	}
-
+              //本地登录拦截
 	@Override
 	protected void loginFail(HttpServletRequest request,
 			HttpServletResponse response) {
