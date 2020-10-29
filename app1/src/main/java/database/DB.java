@@ -5,7 +5,7 @@ import java.util.Set;
 
 import domains.User;
 
-public class DB {
+public class DB {//模拟数据库
 	private static Set<User> users=new HashSet<User>();
 	static {
 		addUser("app1u1","001","App1_张三","xxx",10);
