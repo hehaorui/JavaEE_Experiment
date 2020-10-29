@@ -10,7 +10,7 @@ import javax.servlet.http.HttpSessionListener;
  *
  */
 @WebListener
-public class SessionListener implements HttpSessionListener {
+public class SessionListener implements HttpSessionListener {//实现对会话的创建与销毁的监听
 
     /**
      * Default constructor. 
