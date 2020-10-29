@@ -21,7 +21,7 @@ public class GetUserController extends HttpServlet {
 		String CAS_ST=request.getParameter("CAS_ST");
 		// host=localhost
 		String host=request.getParameter("host");
-		// app=/app2
+		// app=/app1 or /app2
 		String app=request.getParameter("app");
 		// LOCAL_SERVICE=http://localhost:8080/app2/view.do
 		String LOCAL_SERVICE=request.getParameter("LOCAL_SERVICE");

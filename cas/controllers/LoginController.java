@@ -38,10 +38,15 @@ public class LoginController extends HttpServlet {
 					// 根据TGS在数据库中寻找对应的ST，重新签发ST
 					TicketGrantingService TGS = DB.findTicketGrantingServicebyTGS(CAS_TGS);
 					List<ServiceTicket> l = DB.findServiceTicketbyTGS(TGS);
-					ServiceTicket CAS_ST=l.get(0);
+					ServiceTicket ST=l.get(0);
+					DB.deleteServiceTicket(ST.getSt()); // 删除使用过一次的ST
+					Random random=new Random();
+					String CAS_ST=CAS_TGS+System.currentTimeMillis()+String.valueOf(random.nextInt(100)); // 重新生成一个ST
+					DB.addServiceTicket(TGS.getUser(),CAS_ST,CAS_TGS); // 生成ST，ST对应TGS
+					
 					if (TGS != null) {
 						response.sendRedirect(LOCAL_SERVICE + "?"
-								+ Constants.CAS_ST + "=" + CAS_ST.getSt() + "&"
+								+ Constants.CAS_ST + "=" + CAS_ST + "&"
 								+ Constants.LOCAL_SERVICE + "=" + LOCAL_SERVICE);
 						return;
 					}
@@ -69,7 +74,7 @@ public class LoginController extends HttpServlet {
 			response.addCookie(cookie); 
 			DB.addTicketGrantingService(user,CAS_TGS);
 			Random random=new Random();
-			String CAS_ST=CAS_TGS+String.valueOf(random.nextInt(3));
+			String CAS_ST=CAS_TGS+System.currentTimeMillis()+String.valueOf(random.nextInt(100));
 			DB.addServiceTicket(user,CAS_ST,CAS_TGS); // 生成ST，ST对应TGS
 			
 			// 如果从 app1/app2 本地登录

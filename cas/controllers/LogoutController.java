@@ -34,10 +34,12 @@ public class LogoutController extends HttpServlet {
 					List<ServiceTicket> l = DB.findServiceTicketbyTGS(DB.findTicketGrantingServicebyTGS(CAS_TGS));
 					cookie.setMaxAge(0); // 通过修改cookie的生命周期删除cookie
 					response.addCookie(cookie);
+					// 在数据库删除ST对应的所有信息，销毁局部会话
 					for(int i=0;i<l.size();i++) {
 						DB.deleteSessionStorage(l.get(i).getSt());
 						DB.deleteServiceTicket(l.get(i).getSt());
 					}
+					// 在数据库中删除TGS，销毁全局会话
 					DB.deleteTicketGrantingService(CAS_TGS);
 				}
 			}
