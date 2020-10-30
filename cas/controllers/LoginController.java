@@ -38,18 +38,23 @@ public class LoginController extends HttpServlet {
 					// 根据TGS在数据库中寻找对应的ST，重新签发ST
 					TicketGrantingService TGS = DB.findTicketGrantingServicebyTGS(CAS_TGS);
 					List<ServiceTicket> l = DB.findServiceTicketbyTGS(TGS);
-					ServiceTicket ST=l.get(0);
-					DB.deleteServiceTicket(ST.getSt()); // 删除使用过一次的ST
-					Random random=new Random();
-					String CAS_ST=CAS_TGS+System.currentTimeMillis()+String.valueOf(random.nextInt(100)); // 重新生成一个ST
-					DB.addServiceTicket(TGS.getUser(),CAS_ST,CAS_TGS); // 生成ST，ST对应TGS
-					
-					if (TGS != null) {
-						response.sendRedirect(LOCAL_SERVICE + "?"
-								+ Constants.CAS_ST + "=" + CAS_ST + "&"
-								+ Constants.LOCAL_SERVICE + "=" + LOCAL_SERVICE);
-						return;
+					if(l.size()!=0) {
+						ServiceTicket ST=l.get(0);
+						DB.deleteServiceTicket(ST.getSt()); // 删除使用过一次的ST
+						Random random=new Random();
+						String CAS_ST=CAS_TGS+System.currentTimeMillis()+String.valueOf(random.nextInt(100)); // 重新生成一个ST
+						DB.addServiceTicket(TGS.getUser(),CAS_ST,CAS_TGS); // 生成ST，ST对应TGS
+						
+						if (TGS != null) {
+							response.sendRedirect(LOCAL_SERVICE + "?"
+									+ Constants.CAS_ST + "=" + CAS_ST + "&"
+									+ Constants.LOCAL_SERVICE + "=" + LOCAL_SERVICE);
+							return;
+						}
 					}
+				}
+				else {
+					break;
 				}
 			}
 		}
