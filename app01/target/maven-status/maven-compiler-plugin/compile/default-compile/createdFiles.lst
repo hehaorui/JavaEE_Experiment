@@ -1,0 +1,10 @@
+filters\LocalLoginFilter.class
+database\DB.class
+cas\client\filter\SingleSignOnFilter.class
+domains\User.class
+cas\client\SessionListener.class
+cas\client\SessionMap.class
+controllers\UserController.class
+cas\client\filter\SingleSignOutFilter.class
+cas\client\Constants.class
+cas\client\filter\AbstractLocalLoginFilter.class

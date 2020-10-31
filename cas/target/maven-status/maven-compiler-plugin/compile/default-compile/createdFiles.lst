@@ -1,0 +1,11 @@
+database\DB.class
+controllers\GetUserController.class
+controllers\LoginController.class
+domains\User.class
+controllers\LogoutController.class
+domains\Mapping.class
+controllers\MainController.class
+domains\SessionStorage.class
+cas\server\Constants.class
+domains\TicketGrantingService.class
+domains\ServiceTicket.class
